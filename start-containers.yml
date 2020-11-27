@@ -1,0 +1,21 @@
+---
+- name: Start containers
+  hosts:  stage
+  become: yes
+
+  vars:
+    cont_name: admin
+    cont_pass: pass1
+    cont_super_pass: pass2
+
+    container_name: test0
+    containers_folder: /home/alex/Desktop/workstage-nspawn/containers
+    workbranch_folder: /home/alex/Desktop/workstage-nspawn
+    containers_logs: "{{ workbranch_folder }}/logs"
+
+  tasks:
+    - name: Start container
+      shell: /bin/bash {{ workbranch_folder }}/scripts/start_client.sh --cont_dir_log={{ containers_logs }} --cont_name={{ container_name }} --cont_dir={{ containers_folder }}
+      args:
+        executable: /bin/bash
+

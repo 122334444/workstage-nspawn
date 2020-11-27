@@ -1,0 +1,48 @@
+---
+- name: Installing containers
+  hosts:  stage
+  become: yes
+
+  vars:
+    cont_name: admin
+    cont_pass: pass1
+    cont_super_pass: pass2
+
+    containers_mountpoint: /mnt
+    container_name: test0
+    containers_folder: /home/alex/Desktop/workstage-nspawn/containers
+    workbranch_folder: /home/alex/Desktop/workstage-nspawn
+    containers_scripts: "{{ workbranch_folder }}/scripts"
+    containers_conf: "{{ workbranch_folder }}/conf"
+    containers_logs: "{{ workbranch_folder }}/logs"
+
+  tasks:
+    - name: Clear preview log file container
+      file:
+        path: "{{ containers_logs }}/{{ container_name }}.log"
+        state: absent
+
+    - name: Create directory container
+      file:
+        path: "{{ containers_folder }}/{{ container_name }}"
+        state: directory
+
+    - name: Make container archlinux
+      shell: pacstrap -c {{ containers_folder }}/{{ container_name }} base base-devel linux linux-firmware nano netctl dhcpcd git wget curl openssh reflector
+      args:
+        executable: /bin/bash
+
+    - name: Setup preset default arch container
+      shell: systemd-nspawn --bind {{ workbranch_folder }}:{{ containers_mountpoint }} -D {{ containers_folder }}/{{ container_name }} /bin/bash {{ containers_mountpoint }}/scripts/preset_arch.sh --BIND_DIR={{ containers_mountpoint }} --cont_name={{ cont_name }} --cont_pass={{ cont_pass }} --cont_super_pass={{ cont_super_pass }}
+      args:
+        executable: /bin/bash
+
+    - name: Install AUR manager
+      shell: systemd-nspawn --bind {{ workbranch_folder }}:{{ containers_mountpoint }} -u {{ cont_name }} -D {{ containers_folder }}/{{ container_name }} /bin/bash {{ containers_mountpoint }}/scripts/install_aur_arch.sh
+      args:
+        executable: /bin/bash
+
+    - debug:
+        msg: "Finally Success container"
+
+

@@ -1,0 +1,10 @@
+[stage]
+comp0	ansible_host=15.0.0.4
+
+[containers]
+arch0   ansible_host=15.255.255.231
+
+[stage_containers:children]
+stage
+containers
+
